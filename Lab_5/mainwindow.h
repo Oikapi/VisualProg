@@ -90,6 +90,8 @@ private slots:
 
   void on_DeleteColumn_triggered();
 
+  void on_Paddins_triggered();
+
 private:
   Ui::MainWindow *ui;
   int pageIndex;
