@@ -28,7 +28,7 @@ GraphicsEditor::GraphicsEditor(QWidget *parent)
   setupWalls();
 
   drawGordeew();
-
+  drawSheiko();
   createMovingObject();
 
   //         Таймер для перемещения объекта
@@ -108,6 +108,36 @@ void GraphicsEditor::createMovingObject() {
 
   // Добавляем объект и его начальную скорость в соответствующие списки
   movingItemGroups.append(human);
+  velocities.append(QPointF(2, 2)); // Скорость по осям X и Y
+
+  // Создание элементов телефона
+  QGraphicsRectItem *phoneBody = new QGraphicsRectItem(20, 20, 50, 100);
+  phoneBody->setBrush(Qt::darkGray); // Корпус телефона
+
+  QGraphicsRectItem *screen = new QGraphicsRectItem(25, 30, 40, 60);
+  screen->setBrush(Qt::lightGray); // Экран
+
+  QGraphicsEllipseItem *homeButton = new QGraphicsEllipseItem(35, 95, 20, 10);
+  homeButton->setBrush(Qt::black); // Кнопка "Home"
+
+  QGraphicsRectItem *speaker = new QGraphicsRectItem(35, 22, 20, 5);
+  speaker->setBrush(Qt::black); // Динамик
+
+  // Группируем фигуры в один объект
+  QGraphicsItemGroup *phone = new QGraphicsItemGroup();
+  phone->addToGroup(phoneBody);
+  phone->addToGroup(screen);
+  phone->addToGroup(homeButton);
+  phone->addToGroup(speaker);
+
+  // Устанавливаем свойства и добавляем на сцену
+  phone->setFlag(QGraphicsItem::ItemIsSelectable, true);
+  scene->addItem(phone);
+
+  phone->setPos(400, 500); // Начальная позиция объекта
+
+  // Добавляем объект и его начальную скорость в соответствующие списки
+  movingItemGroups.append(phone);
   velocities.append(QPointF(2, 2)); // Скорость по осям X и Y
 }
 
@@ -763,6 +793,85 @@ void GraphicsEditor::drawGordeew() {
   scene->addItem(group_V);
 
   scene->update(); // Обновление сцены для отображения всех букв
+}
+
+void GraphicsEditor::drawSheiko() {
+  // Ш
+  QGraphicsItemGroup *group_Sh = new QGraphicsItemGroup();
+  QGraphicsItem *Sh_1 =
+      scene->addLine(QLineF(10, 160, 10, 200), QPen(Qt::blue, 2));
+  group_Sh->addToGroup(Sh_1);
+  QGraphicsItem *Sh_2 =
+      scene->addLine(QLineF(30, 160, 30, 200), QPen(Qt::blue, 2));
+  group_Sh->addToGroup(Sh_2);
+  QGraphicsItem *Sh_3 =
+      scene->addLine(QLineF(50, 160, 50, 200), QPen(Qt::blue, 2));
+  group_Sh->addToGroup(Sh_3);
+  QGraphicsItem *Sh_4 =
+      scene->addLine(QLineF(10, 200, 50, 200), QPen(Qt::blue, 2));
+  group_Sh->addToGroup(Sh_4);
+  scene->addItem(group_Sh);
+
+  // Е
+  QGraphicsItemGroup *group_E = new QGraphicsItemGroup();
+  QGraphicsItem *E_1 =
+      scene->addLine(QLineF(70, 160, 70, 200), QPen(Qt::red, 2));
+  group_E->addToGroup(E_1);
+  QGraphicsItem *E_2 =
+      scene->addLine(QLineF(70, 160, 90, 160), QPen(Qt::red, 2));
+  group_E->addToGroup(E_2);
+  QGraphicsItem *E_3 =
+      scene->addLine(QLineF(70, 180, 90, 180), QPen(Qt::red, 2));
+  group_E->addToGroup(E_3);
+  QGraphicsItem *E_4 =
+      scene->addLine(QLineF(70, 200, 90, 200), QPen(Qt::red, 2));
+  group_E->addToGroup(E_4);
+  scene->addItem(group_E);
+
+  // И
+  QGraphicsItemGroup *group_I = new QGraphicsItemGroup();
+
+  // Левая вертикальная линия
+  QGraphicsItem *I_1 =
+      scene->addLine(QLineF(110, 160, 110, 200), QPen(Qt::blue, 2));
+  group_I->addToGroup(I_1);
+
+  // Правая вертикальная линия
+  QGraphicsItem *I_2 =
+      scene->addLine(QLineF(130, 160, 130, 200), QPen(Qt::blue, 2));
+  group_I->addToGroup(I_2);
+
+  // Диагональная линия
+  QGraphicsItem *I_3 =
+      scene->addLine(QLineF(130, 160, 110, 200), QPen(Qt::blue, 2));
+  group_I->addToGroup(I_3);
+  QGraphicsItem *I_4 = scene->addEllipse(QRectF(115, 140, 10, 10),
+                                         QPen(Qt::blue, 2), QBrush(Qt::blue));
+  group_I->addToGroup(I_4);
+
+  scene->addItem(group_I);
+
+  // К
+  QGraphicsItemGroup *group_K = new QGraphicsItemGroup();
+  QGraphicsItem *K_1 =
+      scene->addLine(QLineF(150, 160, 150, 200), QPen(Qt::blue, 2));
+  group_K->addToGroup(K_1);
+  QGraphicsItem *K_2 =
+      scene->addLine(QLineF(150, 180, 170, 160), QPen(Qt::blue, 2));
+  group_K->addToGroup(K_2);
+  QGraphicsItem *K_3 =
+      scene->addLine(QLineF(150, 180, 170, 200), QPen(Qt::blue, 2));
+  group_K->addToGroup(K_3);
+  scene->addItem(group_K);
+
+  // О
+  QGraphicsItemGroup *group_O = new QGraphicsItemGroup();
+  QGraphicsItem *O_1 =
+      scene->addEllipse(QRectF(190, 160, 40, 40), QPen(Qt::red, 2));
+  group_O->addToGroup(O_1);
+  scene->addItem(group_O);
+
+  scene->update();
 }
 
 void GraphicsEditor::groupSetFlags(QGraphicsItemGroup *group) {
