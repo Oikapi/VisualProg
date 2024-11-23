@@ -125,7 +125,12 @@ void MainWindow::on_OpenFile_triggered() {
         newTableWidget->setItem(i, j, new QTableWidgetItem(cells.at(j)));
       }
     }
-    QFile settingsFile(fileName + ".json");
+    QFileInfo fileInfo(fileName);
+    QString relativePath = "../Visual_Lab5/Lab_5/tabSettings";
+    QDir settingsDir(relativePath);
+    QString jsonFilePath =
+        settingsDir.absoluteFilePath(fileInfo.fileName() + ".json");
+    QFile settingsFile(jsonFilePath);
     if (settingsFile.exists() && settingsFile.open(QIODevice::ReadOnly)) {
       QByteArray settingsData = settingsFile.readAll();
       settingsFile.close();
@@ -293,7 +298,18 @@ void MainWindow::on_SaveFile_triggered() {
       }
 
       // Сохраняем настройки в JSON файл
-      QFile settingsFile(filePath + ".json");
+      QFileInfo fileInfo(filePath);
+      QString relativePath = "../Visual_Lab5/Lab_5/tabSettings";
+
+      QDir settingsDir(relativePath);
+      if (!settingsDir.exists() && !settingsDir.mkpath(".")) {
+        qDebug() << "Unable to create directory: "
+                 << settingsDir.absolutePath();
+        return;
+      }
+      QString jsonFilePath =
+          settingsDir.absoluteFilePath(fileInfo.fileName() + ".json");
+      QFile settingsFile(jsonFilePath);
       if (settingsFile.open(QIODevice::WriteOnly)) {
         QJsonDocument settingsDoc(cellSettingsArray);
         settingsFile.write(settingsDoc.toJson());
@@ -354,7 +370,18 @@ void MainWindow::on_SaveFile_triggered() {
       }
 
       // Сохраняем настройки в JSON файл
-      QFile settingsFile(filePath + ".json");
+      QFileInfo fileInfo(filePath);
+      QString relativePath = "../Visual_Lab5/Lab_5/tabSettings";
+
+      QDir settingsDir(relativePath);
+      if (!settingsDir.exists() && !settingsDir.mkpath(".")) {
+        qDebug() << "Unable to create directory: "
+                 << settingsDir.absolutePath();
+        return;
+      }
+      QString jsonFilePath =
+          settingsDir.absoluteFilePath(fileInfo.fileName() + ".json");
+      QFile settingsFile(jsonFilePath);
       if (settingsFile.open(QIODevice::WriteOnly)) {
         QJsonDocument settingsDoc(cellSettingsArray);
         settingsFile.write(settingsDoc.toJson());
@@ -438,7 +465,17 @@ void MainWindow::on_SaveFileAs_triggered() {
     }
 
     // Сохраняем настройки в JSON файл
-    QFile settingsFile(filePath + ".json");
+    QFileInfo fileInfo(filePath);
+    QString relativePath = "../Visual_Lab5/Lab_5/tabSettings";
+
+    QDir settingsDir(relativePath);
+    if (!settingsDir.exists() && !settingsDir.mkpath(".")) {
+      qDebug() << "Unable to create directory: " << settingsDir.absolutePath();
+      return;
+    }
+    QString jsonFilePath =
+        settingsDir.absoluteFilePath(fileInfo.fileName() + ".json");
+    QFile settingsFile(jsonFilePath);
     if (settingsFile.open(QIODevice::WriteOnly)) {
       QJsonDocument settingsDoc(cellSettingsArray);
       settingsFile.write(settingsDoc.toJson());
@@ -466,6 +503,7 @@ void MainWindow::on_SaveFileAs_triggered() {
     QTextStream out(&file);
     out << editor->toPlainText();
     file.close();
+    saveTextSettings(filePath);
 
     ui->tabWidget->setTabToolTip(ui->tabWidget->currentIndex(), filePath);
     ui->tabWidget->setTabText(ui->tabWidget->currentIndex(),
@@ -1101,7 +1139,7 @@ void MainWindow::saveTextSettings(const QString &filePath) {
     return;
 
   QFileInfo fileInfo(filePath);
-  QString relativePath = "../Laboratory_5/settings";
+  QString relativePath = "../Visual_Lab5/Lab_5/textSettings";
 
   QDir settingsDir(relativePath);
   if (!settingsDir.exists() && !settingsDir.mkpath(".")) {
@@ -1136,7 +1174,7 @@ void MainWindow::loadTextSettings(const QString &filePath) {
     return;
 
   QFileInfo fileInfo(filePath);
-  QString relativePath = "../Laboratory_5/settings";
+  QString relativePath = "../Visual_Lab5/Lab_5/textSettings";
   QDir settingsDir(relativePath);
   QString jsonFilePath =
       settingsDir.absoluteFilePath(fileInfo.fileName() + ".html");
