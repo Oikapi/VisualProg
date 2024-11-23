@@ -1,5 +1,7 @@
 #include "mainwindow.h"
+#include "graphiceditorwindow.h"
 #include "ui_mainwindow.h"
+
 
 QTemporaryFile MainWindow::tempFile;
 
@@ -30,9 +32,44 @@ MainWindow::MainWindow(QWidget *parent)
     format.setBackground(Qt::white);
     editor->setCurrentCharFormat(format);
   }
+
+  QPushButton *createImageButton = new QPushButton("Создать картинку", this);
+  connect(createImageButton, &QPushButton::clicked, this,
+          &MainWindow::createImage);
 }
 
 MainWindow::~MainWindow() { delete ui; }
+
+void MainWindow::createImage() {
+  // Создайте новую вкладку
+  QWidget *tab = new QWidget();
+  ui->tabWidget->addTab(tab, "Картинка");
+
+  // Создайте редактор
+  GraphicEditorWindow *editor = new GraphicEditorWindow();
+  editor->show();
+
+  // Смените toolbar на toolbar для paint
+  QToolBar *paintToolBar = new QToolBar(this);
+  paintToolBar->addAction("Кисть");
+  paintToolBar->addAction("Ластик");
+  paintToolBar->addAction("Изменить фон");
+  paintToolBar->addAction("Добавить фигуру");
+  paintToolBar->addAction("Удалить фигуру");
+  addToolBar(paintToolBar);
+
+  // Установите соединения для кнопок toolbar
+  // connect(paintToolBar->actions()[0], &QAction::triggered, editor,
+  // &GraphicEditorWindow::on_brushSizeChanged);
+  connect(paintToolBar->actions()[1], &QAction::triggered, editor,
+          &GraphicEditorWindow::on_eraserSizeChanged);
+  connect(paintToolBar->actions()[2], &QAction::triggered, editor,
+          &GraphicEditorWindow::on_backgroundColorChanged);
+  connect(paintToolBar->actions()[3], &QAction::triggered, editor,
+          &GraphicEditorWindow::on_addFigure);
+  connect(paintToolBar->actions()[4], &QAction::triggered, editor,
+          &GraphicEditorWindow::on_deleteFigure);
+}
 
 void MainWindow::on_CreateNewFile_triggered() {
   QTextEdit *newEdit = new QTextEdit(this);
@@ -50,6 +87,24 @@ void MainWindow::on_OpenFile_triggered() {
       tr("Text Files (*.txt);;Table Files(*.csv);;All Files (*)"));
 
   if (fileName.isEmpty()) {
+    return;
+  }
+
+  int existingIndex = -1;
+  for (int i = 0; i < ui->tabWidget->count(); ++i) {
+    if (ui->tabWidget->tabToolTip(i) == fileName) // Сравниваем с путем к файлу
+    {
+      existingIndex = i;
+      break;
+    }
+  }
+
+  if (existingIndex != -1) {
+    // Если файл уже открыт, удаляем старую вкладку
+    //           QWidget *oldWidget = ui->tabWidget->widget(existingIndex);
+    //           ui->tabWidget->removeTab(existingIndex);
+    //           delete oldWidget;
+    ui->tabWidget->setCurrentIndex(existingIndex);
     return;
   }
 
@@ -163,7 +218,6 @@ void MainWindow::on_OpenFile_triggered() {
     connect(newTableWidget, &QTableWidget::cellChanged, this,
             &MainWindow::onTableCellChanged);
     newTableWidget->setProperty("modified", false);
-
   } else {
     QFile file(fileName);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
