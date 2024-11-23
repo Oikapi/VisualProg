@@ -27,7 +27,7 @@ GraphicsEditor::GraphicsEditor(QWidget *parent)
       &GraphicsEditor::setupWalls); // Подключение сигнала resized к setupWalls
   setupWalls();
 
-  drawKapustin();
+  drawGordeew();
 
   createMovingObject();
 
@@ -72,34 +72,42 @@ void GraphicsEditor::on_BackColor_triggered() {
 }
 
 void GraphicsEditor::createMovingObject() {
-  // Создание нескольких фигур для составного объекта
-  QGraphicsRectItem *body = new QGraphicsRectItem(15, 15, 75, 45);
-  body->setBrush(Qt::darkGray);
-  QGraphicsRectItem *cab = new QGraphicsRectItem(55, -5, 35, 35);
-  cab->setBrush(Qt::lightGray);
-  QGraphicsRectItem *smoke = new QGraphicsRectItem(25, 0, 25, 30);
-  smoke->setBrush(Qt::lightGray);
-  QGraphicsEllipseItem *wheel1 = new QGraphicsEllipseItem(20, 40, 30, 30);
-  wheel1->setBrush(Qt::lightGray);
-  QGraphicsEllipseItem *wheel2 = new QGraphicsEllipseItem(55, 40, 30, 30);
-  wheel2->setBrush(Qt::lightGray);
+  // Создание частей тела человека
+  QGraphicsEllipseItem *head = new QGraphicsEllipseItem(40, 0, 30, 30);
+  head->setBrush(Qt::lightGray); // Голова
+
+  QGraphicsRectItem *torso = new QGraphicsRectItem(35, 30, 40, 60);
+  torso->setBrush(Qt::darkGray); // Торс
+
+  QGraphicsLineItem *leftArm = new QGraphicsLineItem(35, 40, 15, 70);
+  leftArm->setPen(QPen(Qt::darkGray, 4)); // Левая рука
+
+  QGraphicsLineItem *rightArm = new QGraphicsLineItem(75, 40, 95, 70);
+  rightArm->setPen(QPen(Qt::darkGray, 4)); // Правая рука
+
+  QGraphicsLineItem *leftLeg = new QGraphicsLineItem(40, 90, 30, 130);
+  leftLeg->setPen(QPen(Qt::darkGray, 4)); // Левая нога
+
+  QGraphicsLineItem *rightLeg = new QGraphicsLineItem(70, 90, 80, 130);
+  rightLeg->setPen(QPen(Qt::darkGray, 4)); // Правая нога
 
   // Группируем фигуры в один объект
-  QGraphicsItemGroup *train = new QGraphicsItemGroup();
-  train->addToGroup(body);
-  train->addToGroup(cab);
-  train->addToGroup(smoke);
-  train->addToGroup(wheel1);
-  train->addToGroup(wheel2);
+  QGraphicsItemGroup *human = new QGraphicsItemGroup();
+  human->addToGroup(head);
+  human->addToGroup(torso);
+  human->addToGroup(leftArm);
+  human->addToGroup(rightArm);
+  human->addToGroup(leftLeg);
+  human->addToGroup(rightLeg);
 
-  // Добавляем объект на сцену
-  train->setFlag(QGraphicsItem::ItemIsSelectable, true);
-  scene->addItem(train);
+  // Устанавливаем свойства и добавляем на сцену
+  human->setFlag(QGraphicsItem::ItemIsSelectable, true);
+  scene->addItem(human);
 
-  train->setPos(400, 500); // Начальная позиция объекта
+  human->setPos(400, 500); // Начальная позиция объекта
 
   // Добавляем объект и его начальную скорость в соответствующие списки
-  movingItemGroups.append(train);
+  movingItemGroups.append(human);
   velocities.append(QPointF(2, 2)); // Скорость по осям X и Y
 }
 
@@ -660,160 +668,101 @@ void GraphicsEditor::on_DeleteFigure_triggered() {
   qDebug() << "Scene updated after deletion.";
 }
 
-void GraphicsEditor::drawKapustin() {
-  //  K
-  QGraphicsItemGroup *group_K = new QGraphicsItemGroup();
-  QGraphicsItem *K_1 =
-      scene->addRect(QRectF(15, 15, 10, 50), QPen(Qt::green, 2),
-                     QBrush(Qt::black, Qt::SolidPattern));
-  group_K->addToGroup(K_1);
-  QGraphicsItem *K_2 =
-      scene->addRect(QRectF(15, 15, 30, 10), QPen(Qt::green, 2),
-                     QBrush(Qt::black, Qt::SolidPattern));
-  K_2->setTransformOriginPoint(15, 15);
-  K_2->setRotation(-45);
-  K_2->setPos(5, 20);
-  group_K->addToGroup(K_2);
-  QGraphicsItem *K_3 =
-      scene->addRect(QRectF(15, 15, 30, 10), QPen(Qt::green, 2),
-                     QBrush(Qt::black, Qt::SolidPattern));
-  K_3->setTransformOriginPoint(15, 15);
-  K_3->setRotation(45);
-  K_3->setPos(15, 20);
-  group_K->addToGroup(K_3);
-  groupSetFlags(group_K);
-  scene->addItem(group_K);
+void GraphicsEditor::drawGordeew() {
+  // Г
+  QGraphicsItemGroup *group_G = new QGraphicsItemGroup();
+  QGraphicsItem *G_1 =
+      scene->addLine(QLineF(15, 15, 50, 15), QPen(Qt::green, 6));
+  group_G->addToGroup(G_1);
+  QGraphicsItem *G_2 =
+      scene->addLine(QLineF(15, 15, 15, 60), QPen(Qt::green, 6));
+  group_G->addToGroup(G_2);
+  groupSetFlags(group_G);
+  scene->addItem(group_G);
 
-  //  A
-  QGraphicsItemGroup *group_A = new QGraphicsItemGroup();
-  QGraphicsItem *A_1 = scene->addLine(QLineF(70, 60, 85, 15), QPen(Qt::red, 6));
-  group_A->addToGroup(A_1);
-  QGraphicsItem *A_2 =
-      scene->addLine(QLineF(85, 15, 100, 60), QPen(Qt::red, 6));
-  group_A->addToGroup(A_2);
-  QGraphicsItem *A_3 = scene->addLine(QLineF(75, 50, 95, 50), QPen(Qt::red, 6));
-  group_A->addToGroup(A_3);
-  groupSetFlags(group_A);
+  // О
+  QGraphicsItemGroup *group_O = new QGraphicsItemGroup();
+  QGraphicsEllipseItem *O =
+      scene->addEllipse(QRectF(70, 15, 50, 50), QPen(Qt::red, 6));
+  group_O->addToGroup(O);
+  groupSetFlags(group_O);
+  scene->addItem(group_O);
 
-  scene->addItem(group_A);
-
-  //  П
-  QGraphicsItemGroup *group_P = new QGraphicsItemGroup();
-  QGraphicsItem *P_1 =
-      scene->addLine(QLineF(110, 60, 110, 15), QPen(Qt::blue, 6));
-  group_P->addToGroup(P_1);
-  QGraphicsItem *P_2 =
-      scene->addRect(QRectF(110, 15, 30, 10), QPen(Qt::blue, 2),
-                     QBrush(Qt::yellow, Qt::SolidPattern));
-  group_P->addToGroup(P_2);
-  QGraphicsItem *P_3 =
+  // Р
+  QGraphicsItemGroup *group_R = new QGraphicsItemGroup();
+  QGraphicsItem *R_1 =
       scene->addLine(QLineF(140, 15, 140, 60), QPen(Qt::blue, 6));
-  group_P->addToGroup(P_3);
-  groupSetFlags(group_P);
+  group_R->addToGroup(R_1);
+  QGraphicsEllipseItem *R_2 =
+      scene->addEllipse(QRectF(140, 15, 30, 30), QPen(Qt::blue, 6));
+  group_R->addToGroup(R_2);
+  groupSetFlags(group_R);
+  scene->addItem(group_R);
 
-  scene->addItem(group_P);
+  // Д
+  QGraphicsItemGroup *group_D = new QGraphicsItemGroup();
+  QGraphicsItem *D_1 =
+      scene->addLine(QLineF(190, 60, 220, 15), QPen(Qt::yellow, 6));
+  group_D->addToGroup(D_1);
+  QGraphicsItem *D_2 =
+      scene->addLine(QLineF(220, 15, 250, 60), QPen(Qt::yellow, 6));
+  group_D->addToGroup(D_2);
+  QGraphicsItem *D_3 =
+      scene->addLine(QLineF(200, 60, 240, 60), QPen(Qt::yellow, 6));
+  group_D->addToGroup(D_3);
+  groupSetFlags(group_D);
+  scene->addItem(group_D);
 
-  //  У
-  QGraphicsItemGroup *group_U = new QGraphicsItemGroup();
-  QGraphicsItem *U_1 =
-      scene->addLine(QLineF(150, 15, 160, 30), QPen(Qt::red, 6));
-  group_U->addToGroup(U_1);
-  QGraphicsItem *U_2 =
-      scene->addLine(QLineF(150, 60, 170, 15), QPen(Qt::red, 6));
-  group_U->addToGroup(U_2);
-  groupSetFlags(group_U);
+  // Е
+  QGraphicsItemGroup *group_E = new QGraphicsItemGroup();
+  QGraphicsItem *E_1 =
+      scene->addLine(QLineF(270, 15, 270, 60), QPen(Qt::cyan, 6));
+  group_E->addToGroup(E_1);
+  QGraphicsItem *E_2 =
+      scene->addLine(QLineF(270, 15, 300, 15), QPen(Qt::cyan, 6));
+  group_E->addToGroup(E_2);
+  QGraphicsItem *E_3 =
+      scene->addLine(QLineF(270, 60, 300, 60), QPen(Qt::cyan, 6));
+  group_E->addToGroup(E_3);
+  QGraphicsItem *E_4 =
+      scene->addLine(QLineF(270, 37, 290, 37), QPen(Qt::cyan, 6));
+  group_E->addToGroup(E_4);
+  groupSetFlags(group_E);
+  scene->addItem(group_E);
 
-  scene->addItem(group_U);
+  // Е (повтор)
+  QGraphicsItemGroup *group_E2 = new QGraphicsItemGroup();
+  QGraphicsItem *E2_1 =
+      scene->addLine(QLineF(330, 15, 330, 60), QPen(Qt::cyan, 6));
+  group_E2->addToGroup(E2_1);
+  QGraphicsItem *E2_2 =
+      scene->addLine(QLineF(330, 15, 360, 15), QPen(Qt::cyan, 6));
+  group_E2->addToGroup(E2_2);
+  QGraphicsItem *E2_3 =
+      scene->addLine(QLineF(330, 60, 360, 60), QPen(Qt::cyan, 6));
+  group_E2->addToGroup(E2_3);
+  QGraphicsItem *E2_4 =
+      scene->addLine(QLineF(330, 37, 350, 37), QPen(Qt::cyan, 6));
+  group_E2->addToGroup(E2_4);
 
-  //  С
-  QGraphicsItemGroup *group_C = new QGraphicsItemGroup();
-  QGraphicsLineItem *C_1 =
-      scene->addLine(QLineF(180, 15, 210, 15), QPen(Qt::yellow, 6));
-  group_C->addToGroup(C_1);
-  QGraphicsLineItem *C_2 =
-      scene->addLine(QLineF(180, 15, 180, 60), QPen(Qt::yellow, 6));
-  group_C->addToGroup(C_2);
-  QGraphicsLineItem *C_3 =
-      scene->addLine(QLineF(180, 60, 210, 60), QPen(Qt::yellow, 6));
-  group_C->addToGroup(C_3);
-  ;
-  groupSetFlags(group_C);
+  groupSetFlags(group_E2);
+  scene->addItem(group_E2);
 
-  scene->addItem(group_C);
+  // В
+  QGraphicsItemGroup *group_V = new QGraphicsItemGroup();
+  QGraphicsItem *V_1 =
+      scene->addLine(QLineF(400, 15, 400, 60), QPen(Qt::magenta, 6));
+  group_V->addToGroup(V_1);
+  QGraphicsEllipseItem *V_2 =
+      scene->addEllipse(QRectF(400, 15, 30, 20), QPen(Qt::magenta, 6));
+  group_V->addToGroup(V_2);
+  QGraphicsEllipseItem *V_3 =
+      scene->addEllipse(QRectF(400, 40, 30, 20), QPen(Qt::magenta, 6));
+  group_V->addToGroup(V_3);
+  groupSetFlags(group_V);
+  scene->addItem(group_V);
 
-  //  остальные буквы при помощи шрифта
-  QFont font("Arial", 50, QFont::Bold);
-  QGraphicsTextItem *textT1 = new QGraphicsTextItem("Т");
-  textT1->setFont(font);
-  textT1->setDefaultTextColor(Qt::green);
-  textT1->setPos(220, 15);
-  textSetFlags(textT1);
-  scene->addItem(textT1);
-
-  QGraphicsTextItem *textI1 = new QGraphicsTextItem("И");
-  textI1->setFont(font);
-  textI1->setDefaultTextColor(Qt::green);
-  textI1->setPos(270, 15);
-  textSetFlags(textI1);
-  scene->addItem(textI1);
-
-  QGraphicsTextItem *textN = new QGraphicsTextItem("Н");
-  textN->setFont(font);
-  textN->setDefaultTextColor(Qt::green);
-  textN->setPos(320, 15);
-  textSetFlags(textN);
-  scene->addItem(textN);
-
-  QGraphicsTextItem *textT2 = new QGraphicsTextItem("Т");
-  textT2->setFont(font);
-  textT2->setDefaultTextColor(Qt::green);
-  textT2->setPos(370, 15);
-  textSetFlags(textT2);
-  scene->addItem(textT2);
-
-  QGraphicsTextItem *textI2 = new QGraphicsTextItem("И");
-  textI2->setFont(font);
-  textI2->setDefaultTextColor(Qt::green);
-  textI2->setPos(420, 15);
-  textSetFlags(textI2);
-  scene->addItem(textI2);
-
-  QGraphicsTextItem *textM = new QGraphicsTextItem("М");
-  textM->setFont(font);
-  textM->setDefaultTextColor(Qt::green);
-  textM->setPos(470, 15);
-  textSetFlags(textM);
-  scene->addItem(textM);
-
-  QGraphicsTextItem *textO = new QGraphicsTextItem("О");
-  textO->setFont(font);
-  textO->setDefaultTextColor(Qt::green);
-  textO->setPos(520, 15);
-  textSetFlags(textO);
-  scene->addItem(textO);
-
-  QGraphicsTextItem *textF = new QGraphicsTextItem("Ф");
-  textF->setFont(font);
-  textF->setDefaultTextColor(Qt::green);
-  textF->setPos(570, 15);
-  textSetFlags(textF);
-  scene->addItem(textF);
-
-  QGraphicsTextItem *textE = new QGraphicsTextItem("Е");
-  textE->setFont(font);
-  textE->setDefaultTextColor(Qt::green);
-  textE->setPos(620, 15);
-  textSetFlags(textE);
-  scene->addItem(textE);
-
-  QGraphicsTextItem *textY = new QGraphicsTextItem("Й");
-  textY->setFont(font);
-  textY->setDefaultTextColor(Qt::green);
-  textY->setPos(670, 15);
-  textSetFlags(textY);
-  scene->addItem(textY);
-
-  scene->update(); // Обновить всю сцену
+  scene->update(); // Обновление сцены для отображения всех букв
 }
 
 void GraphicsEditor::groupSetFlags(QGraphicsItemGroup *group) {
