@@ -41,5 +41,8 @@
         <file>images/penIcons/RoundJoin.png</file>
         <file>images/penIcons/Solid.png</file>
         <file>images/penIcons/SquareCap.png</file>
+        <file>images/wall.jpg</file>
+        <file>sound.wav</file>
     </qresource>
+    <qresource prefix="/sound"/>
 </RCC>
