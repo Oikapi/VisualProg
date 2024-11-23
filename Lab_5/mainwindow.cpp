@@ -765,3 +765,24 @@ void MainWindow::on_Copy_triggered()
         editor->copy();
     }
 }
+
+void MainWindow::on_Paste_triggered()
+{
+    if(editor){
+        editor->paste();
+    }
+}
+
+void MainWindow::on_Cut_triggered()
+{
+    if(editor && editor->textCursor().hasSelection()) {
+            editor->cut();
+        }
+}
+
+void MainWindow::on_Redo_triggered()
+{
+    if(editor){
+        editor->document()->redo();
+    }
+}
