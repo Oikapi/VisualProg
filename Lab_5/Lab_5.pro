@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -25,15 +25,18 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
-        graphiceditorwindow.cpp \
+        graphicseditor.cpp \
+        graphicsview.cpp \
         main.cpp \
         mainwindow.cpp
 
 HEADERS += \
-        graphiceditorwindow.h \
+        graphicseditor.h \
+        graphicsview.h \
         mainwindow.h
 
 FORMS += \
+        graphicseditor.ui \
         mainwindow.ui
 
 # Default rules for deployment.
