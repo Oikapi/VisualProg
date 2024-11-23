@@ -64,9 +64,11 @@ void MainWindow::on_OpenFile_triggered() {
 
   if (existingIndex != -1) {
     // Если файл уже открыт, удаляем старую вкладку
-    QWidget *oldWidget = ui->tabWidget->widget(existingIndex);
-    ui->tabWidget->removeTab(existingIndex);
-    delete oldWidget;
+    //           QWidget *oldWidget = ui->tabWidget->widget(existingIndex);
+    //           ui->tabWidget->removeTab(existingIndex);
+    //           delete oldWidget;
+    ui->tabWidget->setCurrentIndex(existingIndex);
+    return;
   }
 
   if (fileName.endsWith(".csv", Qt::CaseInsensitive)) {
@@ -121,6 +123,32 @@ void MainWindow::on_OpenFile_triggered() {
 
       for (int j = 0; j < cells.size(); ++j) {
         newTableWidget->setItem(i, j, new QTableWidgetItem(cells.at(j)));
+      }
+    }
+    QFile settingsFile(fileName + ".json");
+    if (settingsFile.exists() && settingsFile.open(QIODevice::ReadOnly)) {
+      QByteArray settingsData = settingsFile.readAll();
+      settingsFile.close();
+
+      QJsonDocument settingsDoc = QJsonDocument::fromJson(settingsData);
+      QJsonArray cellSettingsArray = settingsDoc.array();
+
+      for (int i = 0; i < cellSettingsArray.size(); ++i) {
+        QJsonArray rowSettings = cellSettingsArray[i].toArray();
+        for (int j = 0; j < rowSettings.size(); ++j) {
+          QTableWidgetItem *item = newTableWidget->item(i, j);
+          if (item) {
+            QJsonObject cellSettings = rowSettings[j].toObject();
+            item->setForeground(QColor(cellSettings["textColor"].toString()));
+            item->setBackground(
+                QColor(cellSettings["backgroundColor"].toString()));
+            QFont font;
+            font.fromString(cellSettings["font"].toString());
+            item->setFont(font);
+            qDebug() << "Restoring font: " << cellSettings["font"].toString();
+            item->setTextAlignment(cellSettings["alignment"].toInt());
+          }
+        }
       }
     }
 
@@ -232,17 +260,44 @@ void MainWindow::on_SaveFile_triggered() {
       int columns = tableWidget->columnCount();
 
       // Записываем данные таблицы в файл
+      QJsonArray cellSettingsArray;
       for (int i = 0; i < rows; ++i) {
         QStringList rowContents;
+        QJsonArray rowCellSettings;
+
         for (int j = 0; j < columns; ++j) {
           QTableWidgetItem *item = tableWidget->item(i, j);
-          if (item) {
-            rowContents << item->text();
-          } else {
-            rowContents << ""; // Пустая ячейка
+
+          // Проверка на nullptr
+          if (!item) {
+            item = new QTableWidgetItem(
+                ""); // Создаем пустую ячейку, если она не существует
+            tableWidget->setItem(i, j, item);
           }
+
+          QString cellText = item->text();
+          rowContents << cellText;
+
+          // Сохраняем настройки ячейки
+          QJsonObject cellSettings;
+          cellSettings["textColor"] = item->foreground().color().name();
+          cellSettings["backgroundColor"] = item->background().color().name();
+          cellSettings["font"] = item->font().toString();
+          qDebug() << item->font().toString();
+          cellSettings["alignment"] = item->textAlignment();
+          rowCellSettings.append(cellSettings);
         }
+
         out << rowContents.join(",") << "\n";
+        cellSettingsArray.append(rowCellSettings);
+      }
+
+      // Сохраняем настройки в JSON файл
+      QFile settingsFile(filePath + ".json");
+      if (settingsFile.open(QIODevice::WriteOnly)) {
+        QJsonDocument settingsDoc(cellSettingsArray);
+        settingsFile.write(settingsDoc.toJson());
+        settingsFile.close();
       }
       tableWidget->setProperty("modified", false);
       file.close();
@@ -267,17 +322,43 @@ void MainWindow::on_SaveFile_triggered() {
       int columns = tableWidget->columnCount();
 
       // Записываем данные таблицы в файл
+      QJsonArray cellSettingsArray;
       for (int i = 0; i < rows; ++i) {
         QStringList rowContents;
+        QJsonArray rowCellSettings;
+
         for (int j = 0; j < columns; ++j) {
           QTableWidgetItem *item = tableWidget->item(i, j);
-          if (item) {
-            rowContents << item->text();
-          } else {
-            rowContents << ""; // Пустая ячейка
+
+          // Проверка на nullptr
+          if (!item) {
+            item = new QTableWidgetItem(
+                ""); // Создаем пустую ячейку, если она не существует
+            tableWidget->setItem(i, j, item);
           }
+
+          QString cellText = item->text();
+          rowContents << cellText;
+
+          // Сохраняем настройки ячейки
+          QJsonObject cellSettings;
+          cellSettings["textColor"] = item->foreground().color().name();
+          cellSettings["backgroundColor"] = item->background().color().name();
+          cellSettings["font"] = item->font().toString();
+          cellSettings["alignment"] = item->textAlignment();
+          rowCellSettings.append(cellSettings);
         }
+
         out << rowContents.join(",") << "\n";
+        cellSettingsArray.append(rowCellSettings);
+      }
+
+      // Сохраняем настройки в JSON файл
+      QFile settingsFile(filePath + ".json");
+      if (settingsFile.open(QIODevice::WriteOnly)) {
+        QJsonDocument settingsDoc(cellSettingsArray);
+        settingsFile.write(settingsDoc.toJson());
+        settingsFile.close();
       }
 
       file.close();
@@ -324,13 +405,44 @@ void MainWindow::on_SaveFileAs_triggered() {
     int rows = tableWidget->rowCount();
     int columns = tableWidget->columnCount();
 
+    QJsonArray cellSettingsArray;
     for (int i = 0; i < rows; ++i) {
       QStringList rowContents;
+      QJsonArray rowCellSettings;
+
       for (int j = 0; j < columns; ++j) {
         QTableWidgetItem *item = tableWidget->item(i, j);
-        rowContents << (item ? item->text() : "");
+
+        // Проверка на nullptr
+        if (!item) {
+          item = new QTableWidgetItem(
+              ""); // Создаем пустую ячейку, если она не существует
+          tableWidget->setItem(i, j, item);
+        }
+
+        QString cellText = item->text();
+        rowContents << cellText;
+
+        // Сохраняем настройки ячейки
+        QJsonObject cellSettings;
+        cellSettings["textColor"] = item->foreground().color().name();
+        cellSettings["backgroundColor"] = item->background().color().name();
+        cellSettings["font"] = item->font().toString();
+        qDebug() << item->font().toString();
+        cellSettings["alignment"] = item->textAlignment();
+        rowCellSettings.append(cellSettings);
       }
+
       out << rowContents.join(",") << "\n";
+      cellSettingsArray.append(rowCellSettings);
+    }
+
+    // Сохраняем настройки в JSON файл
+    QFile settingsFile(filePath + ".json");
+    if (settingsFile.open(QIODevice::WriteOnly)) {
+      QJsonDocument settingsDoc(cellSettingsArray);
+      settingsFile.write(settingsDoc.toJson());
+      settingsFile.close();
     }
 
     file.close();
@@ -822,101 +934,164 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 }
 
 void MainWindow::on_Palette_triggered() {
-  // Получаем текущий редактор
+  // Получаем текущий редактор или таблицу
   editor = qobject_cast<QTextEdit *>(ui->tabWidget->currentWidget());
-  if (!editor)
-    return; // Если нет активного редактора, выходим
+  QTableWidget *table =
+      qobject_cast<QTableWidget *>(ui->tabWidget->currentWidget());
 
-  QTextCursor cursor = editor->textCursor();
+  if (!editor && !table)
+    return; // Если нет активного редактора или таблицы, выходим
 
-  // Получаем текущий цвет текста и фона
-  auto currentForegroundColor = cursor.charFormat().foreground().color();
-  auto currentBackgroundColor = cursor.charFormat().background().color();
+  if (editor) {
+    QTextCursor cursor = editor->textCursor();
 
-  qDebug() << "currentBackgroundColor: " << currentBackgroundColor;
+    // Получаем текущий цвет текста и фона
+    auto currentForegroundColor = cursor.charFormat().foreground().color();
+    auto currentBackgroundColor = cursor.charFormat().background().color();
 
-  // Открываем диалог выбора цвета текста
-  QColor newTextColor = QColorDialog::getColor(currentForegroundColor, this,
-                                               tr("Выберите цвет текста"));
+    qDebug() << "currentBackgroundColor: " << currentBackgroundColor;
 
-  // Открываем диалог выбора цвета фона
-  QColor newBackgroundColor = QColorDialog::getColor(
-      currentBackgroundColor, this, tr("Выберите цвет фона"));
+    // Открываем диалог выбора цвета текста
+    QColor newTextColor = QColorDialog::getColor(currentForegroundColor, this,
+                                                 tr("Выберите цвет текста"));
 
-  // Если текстовый цвет не выбран, оставляем текущий или устанавливаем чёрный
-  // по умолчанию
-  if (!newTextColor.isValid()) {
-    newTextColor = currentForegroundColor.isValid() ? currentForegroundColor
-                                                    : QColor(Qt::black);
-  }
+    // Открываем диалог выбора цвета фона
+    QColor newBackgroundColor = QColorDialog::getColor(
+        currentBackgroundColor, this, tr("Выберите цвет фона"));
 
-  // Если цвет фона не выбран или прозрачный, устанавливаем белый по умолчанию
-  if (!newBackgroundColor.isValid() || newBackgroundColor.alpha() == 0) {
-    newBackgroundColor = QColor(Qt::white); // Устанавливаем белый фон
-  }
+    // Если текстовый цвет не выбран, оставляем текущий или устанавливаем чёрный
+    // по умолчанию
+    if (!newTextColor.isValid()) {
+      newTextColor = currentForegroundColor.isValid() ? currentForegroundColor
+                                                      : QColor(Qt::black);
+    }
 
-  // Проверка на совпадение цвета текста и фона
-  if (newTextColor == newBackgroundColor) {
-    // Если цвет фона светлый, текст должен быть чёрным, если тёмный — белым
-    newTextColor = (newBackgroundColor.lightness() > 128) ? QColor(Qt::black)
-                                                          : QColor(Qt::white);
-  }
+    // Если цвет фона не выбран или прозрачный, устанавливаем белый по умолчанию
+    if (!newBackgroundColor.isValid() || newBackgroundColor.alpha() == 0) {
+      newBackgroundColor = QColor(Qt::white); // Устанавливаем белый фон
+    }
 
-  // Сохранение новых цветов
-  textColor = newTextColor;
-  backgroundColor = newBackgroundColor;
+    // Проверка на совпадение цвета текста и фона
+    if (newTextColor == newBackgroundColor) {
+      // Если цвет фона светлый, текст должен быть чёрным, если тёмный — белым
+      newTextColor = (newBackgroundColor.lightness() > 128) ? QColor(Qt::black)
+                                                            : QColor(Qt::white);
+    }
 
-  // Устанавливаем цвета для выделенного текста или всего редактора
-  QTextCharFormat format;
-  format.setForeground(textColor); // Устанавливаем цвет текста
-  format.setBackground(backgroundColor); // Устанавливаем цвет фона
+    // Сохранение новых цветов
+    textColor = newTextColor;
+    backgroundColor = newBackgroundColor;
 
-  // Если есть выделение текста, применяем формат только к выделенному тексту
-  if (cursor.hasSelection()) {
-    cursor.mergeCharFormat(format);
-  } else {
-    // Если текста не выделено, применяем формат ко всей строке
-    editor->setCurrentCharFormat(format);
-    qDebug() << "editor->backgroundRole() " << editor->backgroundRole();
+    // Устанавливаем цвета для выделенного текста или всего редактора
+    QTextCharFormat format;
+    format.setForeground(textColor); // Устанавливаем цвет текста
+    format.setBackground(backgroundColor); // Устанавливаем цвет фона
+
+    // Если есть выделение текста, применяем формат только к выделенному тексту
+    if (cursor.hasSelection()) {
+      cursor.mergeCharFormat(format);
+    } else {
+      // Если текста не выделено, применяем формат ко всей строке
+      editor->setCurrentCharFormat(format);
+      qDebug() << "editor->backgroundRole() " << editor->backgroundRole();
+    }
+  } else if (table) {
+    // Получаем текущую выбранную ячейку
+    QTableWidgetItem *currentItem = table->currentItem();
+
+    // Если нет активной ячейки, устанавливаем активной первую попавшуюся
+    if (!currentItem) {
+      int row = table->currentRow();
+      int col = table->currentColumn();
+      if (row >= 0 && col >= 0) {
+        table->setCurrentCell(row, col); // Устанавливаем ячейку как текущую
+        currentItem = table->currentItem();
+      }
+    }
+
+    if (!currentItem)
+      return; // Если нет активной ячейки, выходим
+
+    // Открываем диалог выбора цвета текста
+    QColor newTextColor = QColorDialog::getColor(
+        currentItem->foreground().color(), this, tr("Выберите цвет текста"));
+
+    // Открываем диалог выбора цвета фона
+    QColor newBackgroundColor = QColorDialog::getColor(
+        currentItem->background().color(), this, tr("Выберите цвет фона"));
+
+    // Если текстовый цвет не выбран, оставляем текущий или устанавливаем чёрный
+    // по умолчанию
+    if (!newTextColor.isValid()) {
+      newTextColor = currentItem->foreground().color().isValid()
+                         ? currentItem->foreground().color()
+                         : QColor(Qt::black);
+    }
+
+    // Если цвет фона не выбран или прозрачный, устанавливаем белый по умолчанию
+    if (!newBackgroundColor.isValid() || newBackgroundColor.alpha() == 0) {
+      newBackgroundColor = QColor(Qt::white); // Устанавливаем белый фон
+    }
+
+    // Проверка на совпадение цвета текста и фона
+    if (newTextColor == newBackgroundColor) {
+      newTextColor = (newBackgroundColor.lightness() > 128) ? QColor(Qt::black)
+                                                            : QColor(Qt::white);
+    }
+
+    // Устанавливаем цвета для ячейки
+    currentItem->setForeground(newTextColor);
+    currentItem->setBackground(newBackgroundColor);
   }
 }
 
 void MainWindow::on_FontAndSize_triggered() {
   // Проверяем текущий редактор
   editor = qobject_cast<QTextEdit *>(ui->tabWidget->currentWidget());
-  if (!editor)
-    return; // Если нет активного редактора, прерываем выполнение
+  QTableWidget *table =
+      qobject_cast<QTableWidget *>(ui->tabWidget->currentWidget());
+
+  if (!editor && !table)
+    return; // Если нет активного редактора или таблицы, прерываем выполнение
 
   bool ok;
   // Открываем диалог выбора шрифта
-  QFont font = QFontDialog::getFont(&ok, editor->currentFont(), this,
-                                    tr("Выберите шрифт"));
+  QFont font = QFontDialog::getFont(&ok, this); // Убираем третий аргумент
   qDebug() << "Selected Font: " << font;
 
   if (ok) {
-    // Сохраняем выбранный шрифт в переменной класса для дальнейшего
-    // использования
-    currentFont = font;
+    currentFont = font; // Сохраняем выбранный шрифт
 
-    // Получаем текстовый курсор
-    QTextCursor cursor = editor->textCursor();
+    if (editor) {
+      // Применяем шрифт в текстовом редакторе
+      QTextCursor cursor = editor->textCursor();
+      QTextCharFormat format;
+      format.setFont(font);
 
-    // Создаем формат для шрифта
-    QTextCharFormat format;
-    format.setFont(font);
+      if (cursor.hasSelection()) {
+        qDebug() << "Applying Font to Selected Text: " << format.font();
+        cursor.mergeCharFormat(format);
+      } else {
+        qDebug() << "Applying Font to Future Text: " << format.font();
+        editor->setCurrentCharFormat(format);
+      }
 
-    if (cursor.hasSelection()) {
-      // Если текст выделен, применяем шрифт к выделенному тексту
-      qDebug() << "Applying Font to Selected Text: " << format.font();
-      cursor.mergeCharFormat(format);
-    } else {
-      // Если текст не выделен, применяем шрифт для текущей строки
-      qDebug() << "Applying Font to Future Text: " << format.font();
-      editor->setCurrentCharFormat(format);
+      // Обозначаем документ как измененный
+      editor->document()->setModified(true);
+    } else if (table) {
+      // Применяем шрифт к выделенной ячейке таблицы
+      QList<QTableWidgetItem *> selectedItems = table->selectedItems();
+      if (!selectedItems.isEmpty()) {
+        foreach (QTableWidgetItem *item, selectedItems) {
+          item->setFont(
+              font); // Устанавливаем шрифт для каждой выбранной ячейки
+        }
+
+        qDebug() << "Applied Font to Selected Table Items.";
+      } else {
+        qDebug() << "No Table Item Selected.";
+      }
     }
-
-    // Сохраняем изменения в документе редактора
-    editor->document()->setModified(true);
   }
 }
 
@@ -1060,6 +1235,18 @@ void MainWindow::on_Table_triggered() {
       tableWidget->setWindowTitle("Таблица");
       tableWidget->setEditTriggers(QAbstractItemView::DoubleClicked);
       tableWidget->setProperty("modified", true);
+      for (int i = 0; i < rows; ++i) {
+        for (int j = 0; j < columns; ++j) {
+          QTableWidgetItem *item = tableWidget->item(i, j);
+          if (!item) {
+            item = new QTableWidgetItem();
+            tableWidget->setItem(i, j, item);
+          }
+          // Установка белого фона, если фон не был изменен
+          item->setTextAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+          item->setBackground(QColor(Qt::white));
+        }
+      }
       // Добавляем новую вкладку с таблицей в QTabWidget
       int index = ui->tabWidget->addTab(
           tableWidget, tr("Таблица %1").arg(ui->tabWidget->count() + 1));
