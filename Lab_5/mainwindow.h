@@ -28,7 +28,6 @@
 #include <QTextTableCell>
 #include <QVBoxLayout>
 
-
 namespace Ui {
 class MainWindow;
 }
@@ -74,6 +73,10 @@ private slots:
   void loadTextSettings(const QString &filePath);
 
   void saveTextSettings(const QString &filePath);
+
+  void closeEvent(QCloseEvent *event);
+
+  void closeTab(int index);
 
   void onTableCellChanged(int row, int column);
 
