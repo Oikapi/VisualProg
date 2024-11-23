@@ -12,6 +12,12 @@
 #include <QPen>
 #include <QDialog>
 #include <QGraphicsPixmapItem>
+#include <QDebug>
+#include <QTimer>
+#include <QSound>
+#include <QRandomGenerator>
+#include <QtMath>
+#include <QLabel>
 
 #include "graphicsview.h" // Подключаем наш новый класс GraphicsView
 
@@ -27,6 +33,11 @@ class GraphicsEditor : public QMainWindow
 public:
     explicit GraphicsEditor(QWidget *parent = nullptr);
     ~GraphicsEditor() override;
+    QGraphicsPixmapItem* getTopWall() const { return topWall; }
+        QGraphicsPixmapItem* getBottomWall() const { return bottomWall; }
+        QGraphicsPixmapItem* getLeftWall() const { return leftWall; }
+        QGraphicsPixmapItem* getRightWall() const { return rightWall; }
+        QList<QGraphicsItemGroup*> getMovingItemGroups() const { return movingItemGroups; }
 
 signals:
     void editorClosed();
@@ -42,9 +53,17 @@ private slots:
     void setupWalls();
     void updateWallPositions();
     void on_AddFigure_triggered();
-    void addShape(QString shapeType, QRectF rect, QColor fillColor, QColor strokeColor, int strokeWidth);
-
+    void addShape(QString shapeType, QRectF rect, QColor fillColor, Qt::BrushStyle brushStyle, QColor strokeColor, int strokeWidth);
     void on_DeleteFigure_triggered();
+    void drawKapustin();
+    void groupSetFlags(QGraphicsItemGroup *group);
+    void textSetFlags(QGraphicsTextItem *item);
+    Qt::BrushStyle stringToBrushStyle(const QString &styleStr);
+    void createMovingObject();
+    void moveObject();
+
+
+    void on_Eraser_triggered();
 
 private:
     Ui::GraphicsEditor *ui;
@@ -58,6 +77,13 @@ private:
     QGraphicsPixmapItem *bottomWall;
     QGraphicsPixmapItem *leftWall;
     QGraphicsPixmapItem *rightWall;
+
+    QTimer *moveTimer;
+
+    QList<QGraphicsItemGroup*> movingItemGroups;  // Список движущихся объектов
+    QList<QPointF> velocities;
+    QSound collisionSound;
+
 };
 
 #endif // GRAPHICSEDITOR_H
