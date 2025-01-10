@@ -28,6 +28,7 @@
 #include <QTextTableCell>
 #include <QRadioButton>
 #include <QTemporaryFile>
+#include <QVector>
 
 #include "graphicseditor.h"
 
@@ -103,6 +104,11 @@ private slots:
     void resetEditorWindow();
 
 private:
+    QVector<QString> undoStack; // Стек состояний для отмены
+    QVector<QString> redoStack; // Стек состояний для возврата
+
+    void saveCurrentState(QTextEdit *editor);
+    void updateTempFile(const QString &text);
     Ui::MainWindow *ui;
     int pageIndex;
     QTextEdit *editor;

@@ -45,11 +45,29 @@ void MainWindow::on_CreateNewFile_triggered()
 {
     QTextEdit *newEdit = new QTextEdit(this);
     pageIndex = ui->tabWidget->addTab(newEdit, "Новый файл");
+    newEdit->setUndoRedoEnabled(true); // Включаем поддержку Undo/Redo
     ui->tabWidget->setCurrentIndex(pageIndex);
     QTextCharFormat format;
     format.setBackground(Qt::white);
     newEdit->setCurrentCharFormat(format);
     newEdit->document()->setModified(false);
+    connect(newEdit, &QTextEdit::textChanged, this, [this, newEdit]() {
+           updateTempFile(newEdit->toPlainText());
+       });
+}
+
+void MainWindow::updateTempFile(const QString &text)
+{
+    if (true) // Открываем в режиме записи и очищаем файл
+    {
+        tempFile.write(text.toUtf8()); // Записываем текст в файл
+        tempFile.close();
+        qDebug() << "Temp file updated with text:" << text; // Для отладки
+    }
+    else
+    {
+        qDebug() << "Failed to open temp file for writing!";
+    }
 }
 
 void MainWindow::on_OpenFile_triggered()
@@ -867,23 +885,14 @@ void MainWindow::on_Undo_triggered()
 {
     QWidget *widget = ui->tabWidget->widget(pageIndex);
     editor = qobject_cast<QTextEdit *>(widget);
-    if (editor)
+    bool is = editor->document()->isUndoAvailable();
+    if (editor && is)
+        {
+            editor->undo();
+        }
+    else
     {
-        if (this->tempFile.exists())
-        {
-            if (this->tempFile.open())
-            {
-                editor->document()->undo();
-                QString saved = QString::fromUtf8(this->tempFile.readAll());
-                editor->document()->setPlainText(saved);
-                this->tempFile.reset();
-                this->tempFile.close();
-            }
-        }
-        else
-        {
-            editor->document()->undo();
-        }
+        qDebug() << "Undo not available or no active editor!";
     }
 }
 
@@ -932,7 +941,7 @@ void MainWindow::on_Redo_triggered()
     {
         if (auto textEdit = qobject_cast<QTextEdit *>(currentWidget))
         {
-            textEdit->document()->redo();
+            textEdit->redo();
         }
     }
 }

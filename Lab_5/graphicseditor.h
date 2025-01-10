@@ -18,7 +18,7 @@
 #include <QTimer>
 #include <QVBoxLayout>
 #include <QtMath>
-
+#include <QPropertyAnimation>
 
 #include "graphicsview.h" // Подключаем наш новый класс GraphicsView
 
@@ -57,7 +57,9 @@ private slots:
   void addShape(QString shapeType, QRectF rect, QColor fillColor,
                 Qt::BrushStyle brushStyle, QColor strokeColor, int strokeWidth);
   void on_DeleteFigure_triggered();
+  void scatterLetter(QGraphicsItemGroup* letterGroup);
   void drawGordeew();
+  void drawSheiko();
   void groupSetFlags(QGraphicsItemGroup *group);
   void textSetFlags(QGraphicsTextItem *item);
   Qt::BrushStyle stringToBrushStyle(const QString &styleStr);

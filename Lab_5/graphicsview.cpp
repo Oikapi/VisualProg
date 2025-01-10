@@ -73,7 +73,7 @@ void GraphicsView::mouseMoveEvent(QMouseEvent *event)
     if (isEraserMode && isDrawing) {
             QPoint currentPoint = mapToScene(event->pos()).toPoint();
             QPainterPath eraserPath;
-            eraserPath.addEllipse(currentPoint, currentPen.width() / 2, currentPen.width() / 2); // Задаем область ластика
+            eraserPath.addEllipse(currentPoint, currentPen.width(), currentPen.width()); // Задаем область ластика
 
             QList<QGraphicsItem*> itemsToErase = scene()->items(eraserPath); // Находим объекты в области ластика
             GraphicsEditor* editor = qobject_cast<GraphicsEditor*>(parent());
@@ -95,7 +95,7 @@ void GraphicsView::mouseMoveEvent(QMouseEvent *event)
 
                         if (bounds.width() > 5 && bounds.height() > 5) {
                             // Уменьшаем размер объекта, если он ещё достаточно велик
-                            item->setScale(item->scale() * scaleFactor);
+                            item->setScale(item->scale() * 0 );
                         } else {
                             // Если объект уже очень мал, удаляем его
                             scene()->removeItem(item);

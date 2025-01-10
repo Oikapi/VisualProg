@@ -46,3 +46,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     resources.qrc
+
+DISTFILES += \
+    C:/Users/seryy/Desktop/sound.wav

@@ -3,7 +3,6 @@
         <file>images/icons/add-document _black.png</file>
         <file>images/icons/add-document.png</file>
         <file>images/icons/clear.png</file>
-        <file>images/icons/copy.png</file>
         <file>images/icons/cut.png</file>
         <file>images/icons/folder-open.png</file>
         <file>images/icons/folder-open_black.png</file>
@@ -24,11 +23,6 @@
         <file>images/icons/delete row.png</file>
         <file>images/icons/indent.png</file>
         <file>images/icons/row.png</file>
-        <file>build/Desktop-Debug/moc_graphiceditorwindow.cpp</file>
-        <file>build/Desktop-Debug/moc_mainwindow.cpp</file>
-        <file>build/Desktop-Debug/moc_predefs.h</file>
-        <file>build/Desktop-Debug/qrc_resources.cpp</file>
-        <file>build/Desktop-Debug/ui_mainwindow.h</file>
         <file>images/penIcons/BevelJoin.png</file>
         <file>images/penIcons/CustomDashLine.png</file>
         <file>images/penIcons/Dash.png</file>
@@ -42,7 +36,11 @@
         <file>images/penIcons/Solid.png</file>
         <file>images/penIcons/SquareCap.png</file>
         <file>images/wall.jpg</file>
-        <file>sound.wav</file>
+        <file>images/icons/search-new.svg</file>
+        <file>../../copy.png</file>
     </qresource>
     <qresource prefix="/sound"/>
+    <qresource prefix="/">
+        <file>../../zvukovoy-effekt-razbitiya-stekla-41865.wav</file>
+    </qresource>
 </RCC>

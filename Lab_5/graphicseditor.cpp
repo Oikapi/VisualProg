@@ -1,10 +1,15 @@
 #include "graphicseditor.h"
 #include "ui_graphicseditor.h"
+#include <QMediaPlayer>
+#include <QGraphicsScene>
+#include <QGraphicsItemGroup>
+#include <QRandomGenerator>
+#include <QPropertyAnimation>
 
 GraphicsEditor::GraphicsEditor(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::GraphicsEditor), currentColor(Qt::white),
       currentPen(Qt::black), topWall(nullptr), bottomWall(nullptr),
-      leftWall(nullptr), rightWall(nullptr), collisionSound(":/res/sound.wav") {
+      leftWall(nullptr), rightWall(nullptr), collisionSound("D:/Downloads/VisualProg/Lab_5/stuck.wav") {
   ui->setupUi(this);
 
   scene = new QGraphicsScene(this);
@@ -793,7 +798,36 @@ void GraphicsEditor::drawGordeew() {
   scene->addItem(group_V);
 
   scene->update(); // Обновление сцены для отображения всех букв
+
+
+  QMediaPlayer* player = new QMediaPlayer();
+  player->setMedia(QUrl::fromLocalFile("D:/Downloads/VisualProg/Lab_5/sound.wav"));
+
+
+  // Рассыпание каждой буквы на случайные точки через 10 секунд
+  QTimer::singleShot(10000, [this, group_G, group_O, group_R, group_D, group_E, group_E2, group_V,player]() {
+    player->play();
+    scatterLetter(group_G);
+    scatterLetter(group_O);
+    scatterLetter(group_R);
+    scatterLetter(group_D);
+    scatterLetter(group_E);
+    scatterLetter(group_E2);
+    scatterLetter(group_V);
+  });
 }
+
+void GraphicsEditor::scatterLetter(QGraphicsItemGroup* letterGroup) {
+    for (auto item : letterGroup->childItems()) {
+        // Если объект не является QGraphicsObject, используем таймер для его перемещения
+        QTimer::singleShot(0, [item]() {
+            int randomX = QRandomGenerator::global()->bounded(item->scene()->width());
+            int randomY = QRandomGenerator::global()->bounded(item->scene()->height());
+            item->setPos(randomX, randomY);
+        });
+    }
+}
+
 
 void GraphicsEditor::drawSheiko() {
   // Ш
